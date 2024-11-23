@@ -1,0 +1,220 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="mobile_robot">
+
+<!-- Base Link -->
+<!--This is the reference (origin)-->
+<link name="base_link">
+</link>
+
+<!--Box of 30cm length, 20cm width, and 4.9cm height
+    (height is size of mounting bracket + plexiglass) -->
+<xacro:property name="height" value="0.3" /> <!-- [m] -->
+<xacro:property name="width" value="0.2" /> <!-- [m] -->
+<xacro:property name="depth" value="0.049" /> <!-- [m] -->
+
+
+<!--Chassis-->
+<link name="chassis">
+  <visual>
+   <origin xyz="0 0 0" rpy="0 0 0"/>​
+    <geometry>
+      <box size="${height} ${width} ${depth}"/>
+    </geometry>
+  </visual>
+  <collision>
+    <geometry>
+      <box size="${height} ${width} ${depth}"/>
+    </geometry>
+  </collision>
+  <inertial>
+    <mass value="1.0"/> <!-- [kg] -->
+    <inertia ixx="0.014167" ixy="0.0" ixz="0.0" iyy="0.026667" iyz="0.0" izz="0.014167"/>
+  </inertial>
+</link>
+
+<gazebo reference="chassis">
+  <material>Gazebo/Red</material>
+</gazebo>
+
+<!--Joint that connects the chassis with the base link -->
+<joint name="chassis_joint" type="fixed">
+  <parent link="base_link"/>
+  <child link="chassis"/>
+  <origin xyz="0 0 0"/>
+</joint>
+
+<!--Material for color blue -->
+<material name="blue">
+    <color rgba="0 0 0.8 1"/>
+</material>
+
+<!--wheel has length(thickness) of 1 inch = 2.54cm-->
+<!--and radius of 3.25cm-->
+<xacro:property name="wheel_height" value="0.0254" /> <!-- [m] -->
+<xacro:property name="wheel_radius" value="0.0325" /> <!-- [m] -->
+
+<!-- Wheel macro-->
+<xacro:macro name="wheel" params="name reflect_x reflect_y reflect_r reflect_axis">
+  
+  <!-- Wheel link -->
+	<link name="${name}_wheel">
+    <visual>
+      <geometry>
+        <cylinder length="${wheel_height}" radius="${wheel_radius}"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder length="${wheel_height}" radius="${wheel_radius}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>  <!-- [kg] -->
+      <inertia ixx="0.00031" ixy="0.0" ixz="0.0" iyy="0.00031" iyz="0.0" izz="0.00054"/>
+    </inertial>
+  </link>
+
+  <!-- Wheel joint -->
+  <joint name="${name}_wheel_joint" type="continuous">
+    <parent link="chassis"/>
+    <child link="${name}_wheel"/>
+    <origin xyz="${reflect_x*height/2.54} ${reflect_y*(width/2+0.0254)} -0.008" rpy="${reflect_r*1.5707} 0 0"/>
+    <axis xyz="0 0 ${reflect_axis}"/>
+  </joint>
+
+  <!-- Adding transmission to wheels -->
+  <transmission name="${name}_wheel_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <actuator name="${name}_wheel_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    <joint name="${name}_wheel_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+  </transmission>
+  
+  <gazebo reference="${name}_wheel">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+</xacro:macro>
+
+<!-- Wheels definition-->
+<xacro:wheel name="front_right" reflect_x="1" reflect_y="-1" reflect_r="1" reflect_axis="-1"/>
+<xacro:wheel name="front_left" reflect_x="1" reflect_y="1" reflect_r="-1" reflect_axis="1"/>
+<xacro:wheel name="rear_right" reflect_x="-1" reflect_y="-1" reflect_r="1" reflect_axis="-1"/>
+<xacro:wheel name="rear_left" reflect_x="-1" reflect_y="1" reflect_r="-1" reflect_axis="1"/>
+
+<!-- Head box -->
+<material name="green">
+  <color rgba="0 0.8 0 1"/>
+</material>
+
+<link name="head">
+  <visual>
+    <geometry>
+      <!--Box of 17cm length, 13cm width, and 6cm height
+        (height is standoff length + wood cutout -->
+      <box size="0.17 0.12 0.06"/>
+    </geometry>
+    <material name="green"/>
+  </visual>
+</link>
+
+<!--Joint that connects the headbox to the chassis-->
+<!--fixed because no rotation-->
+<joint name="head_joint" type="fixed">
+  <parent link="chassis"/>
+  <child link="head"/>
+  <!--xyz:
+        x = 1.9 cm(offset between center of chassis and center of wooden plate)
+        y = 0 (no offset in y)
+        z =  6cm/2 (height/2) + 2.5cm (half of chassis box hieght) = 5.5cm = .055m
+      -->
+    <!--no rotation-->
+  <origin xyz="0.019 0 0.055" rpy="0 0 0"/>
+</joint>
+
+<gazebo reference="head">
+  <material>Gazebo/Green</material>
+</gazebo>
+
+
+
+<!-- JETSON NANO BOX -->
+<link name="jetson">
+  <visual>
+    <geometry>
+      <!--Box of 17cm length, 8cm width, and 6cm height
+        (height is standoff length + wood cutout -->
+      <box size="0.17 0.08 0.06"/>
+    </geometry>
+    <material name="blue"/>
+  </visual>
+</link>
+
+<!--Joint that connects the headbox to the chassis-->
+<!--fixed because no rotation-->
+<joint name="jetson_joint" type="fixed">
+  <parent link="head"/>
+  <child link="jetson"/>
+  <!--xyz:
+        x = 0cm (no offset between center of both wodden plates)
+        y = 0cm  (no offset in y either)
+        z =  6cm/2 (height/2) + 2.5cm (half of ros controller head box hieght) = 5.5cm = .055m
+      -->
+    <!--No rotation-->
+  <origin xyz="0 0 0.055" rpy="0 0 0"/>
+</joint>
+
+<gazebo reference="jetson">
+  <material>Gazebo/Blue</material>
+</gazebo>
+
+
+
+<!-- LIDAR -->
+<link name="lidar">
+  <visual>
+    <geometry>
+      <!--Box of 9.7cm length, 7cm width, and 5.5cm height
+            (size of lidar) -->
+      <box size="0.097 0.07 0.055"/>
+    </geometry>
+    <material name="red"/>
+  </visual>
+</link>
+
+<!--Joint that connects the headbox to the chassis-->
+<!--fixed because no rotation-->
+<joint name="lidar_joint" type="fixed">
+  <parent link="jetson"/>
+  <child link="lidar"/>
+  <!--xyz:
+        x = 2cm (offset between center of jetson nano box and lidar center)
+        y = 0cm  (no offset in y)
+        z = 6cm/2 (height/2) + 2.5cm (half of ros jeston box hieght) = 5.5cm = .055m
+      -->
+    <!--rotation because lidar?-->
+  <origin xyz="0.02 0 0.055" rpy="0 0 0"/>
+</joint>
+
+<gazebo reference="lidar">
+  <material>Gazebo/Red</material>
+</gazebo>
+
+
+
+
+
+
+
+<!-- Link Gazebo and ROS -->
+<gazebo>
+  <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+    <robotNamespace>/</robotNamespace>
+  </plugin>
+</gazebo>
+
+</robot>

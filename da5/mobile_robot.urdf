@@ -1,0 +1,224 @@
+<?xml version="1.0"?>
+<robot name="my_robot">
+  
+  <!--BASE LINK-->
+  <!--This is the reference (origin)-->
+  <link name="base_link">
+  </link>
+  
+  <!--CHASSIS-->
+  <link name="chassis">
+    <visual>
+      <geometry>
+        <!--Box of 30cm length, 20cm width, and 4.9cm height
+            (height is size of mounting bracket + plexiglass) -->
+        <box size="0.3 0.2 0.049"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+  
+  <!--Joint that connects the chassis with the base link -->
+  <joint name="chassis_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="chassis"/>
+  </joint>
+  
+  <!--Materials-->
+  <material name="blue">
+    <color rgba="0 0 0.8 0.9"/>
+  </material>
+
+  <material name="green">
+    <color rgba="0 0.8 0. 0.75"/>
+  </material>
+
+  <material name="red">
+    <color rgba="0.8 0.0 0. 0.75"/>
+  </material>
+
+  <!--FRONT WHEEL RIGHT-->
+  <link name="front_wheel_right"> <!-- unique name-->
+    <visual>
+      <geometry>
+        <!--wheel has length(thickness) of 1 inch = 2.54cm-->
+        <!--and radius of 3.25cm-->
+        <cylinder length="0.0254" radius="0.0325"/> <!--wheels are cylinders-->
+      </geometry>
+      <material name="blue"/>
+    </visual>
+  </link>
+
+  <!--For xyz of wheels:
+      x = =30cm/2 =15cm - 3.3cm (half of wheel not included)= 11.7 cm = 0.117m
+      y = =20cm/2 =10cm + 2cm  (pretruding) = 12 cm = 0.12m
+      z = from center of chassis(center of mounting bracket) to center of wheel = 8cm
+  -->
+
+  <!--Joint that connects the front right wheel to the chassis-->
+  <!--continuous because rotation-->
+  <joint name="front_wheel_right_joint" type="continuous">
+    <parent link="chassis"/>
+    <child link="front_wheel_right"/>
+    <!--x = -->
+    <!--roll 90 dgrees to left-->
+    <origin xyz="0.117 0.12 -0.008" rpy="1.5707 0 0"/>
+    <axis xyz="0 0 -1"/>
+  </joint>
+
+  <!--FRONT WHEEL LEFT-->
+  <link name="front_wheel_left">
+    <visual>
+      <geometry>
+        <!--wheel has length(thickness) of 1 inch = 2.54cm-->
+        <!--and radius of 3.25cm-->
+        <cylinder length="0.0254" radius="0.0325"/> <!--wheels are cylinders-->
+      </geometry>
+      <material name="blue"/>
+    </visual>
+  </link>
+
+  <!--Joint that connects the front left wheel to the chassis-->
+  <!--continuous because rotation-->
+  <joint name="front_wheel_left_joint" type="continuous">
+    <parent link="chassis"/>
+    <child link="front_wheel_left"/>
+    <!--roll 90 dgrees to right-->
+    <origin xyz="0.117 -0.12 -0.008" rpy="-1.5707 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!--REAR WHEEL RIGHT-->
+  <link name="rear_wheel_right">
+    <visual>
+      <geometry>
+        <!--wheel has length(thickness) of 1 inch = 2.54cm-->
+        <!--and radius of 3.25cm-->
+        <cylinder length="0.0254" radius="0.0325"/> <!--wheels are cylinders-->
+      </geometry>
+      <material name="blue"/>
+    </visual>
+  </link>
+
+  <!--Joint that connects the back right wheel to the chassis-->
+  <!--continuous because rotation-->
+  <joint name="rear_wheel_right_joint" type="continuous">
+    <parent link="chassis"/>
+    <child link="rear_wheel_right"/>
+    <!--roll 90 dgrees to right-->
+    <origin xyz="-0.117 0.12 -0.008" rpy="1.5707 0 0"/>
+    <axis xyz="0 0 -1"/>
+  </joint>
+
+  <!--REAR WHEEL LEFT-->
+  <link name="rear_wheel_left">
+    <visual>
+      <geometry>
+        <!--wheel has length(thickness) of 1 inch = 2.54cm-->
+        <!--and radius of 3.25cm-->
+        <cylinder length="0.0254" radius="0.0325"/> <!--wheels are cylinders-->
+      </geometry>
+      <material name="blue"/>
+    </visual>
+  </link>
+
+  <!--Joint that connects the back left wheel to the chassis-->
+  <!--continuous because rotation-->
+  <joint name="rear_wheel_left_joint" type="continuous">
+    <parent link="chassis"/>
+    <child link="rear_wheel_left"/>
+    <!--roll 90 dgrees to left-->
+    <origin xyz="-0.117 -0.12 -0.008" rpy="-1.5707 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!--ROS CONTROLLER BOX-->
+  <link name="head">
+    <visual>
+      <geometry>
+        <!--Box of 17cm length, 13cm width, and 6cm height
+            (height is standoff length + wood cutout -->
+        <box size="0.17 0.12 0.06"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+  </link>
+
+  <!--Joint that connects the headbox to the chassis-->
+  <!--fixed because no rotation-->
+  <joint name="head_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="head"/>
+    <!--xyz:
+        x = 1.9 cm(offset between center of chassis and center of wooden plate)
+        y = 0 (no offset in y)
+        z =  6cm/2 (height/2) + 2.5cm (half of chassis box hieght) = 5.5cm = .055m
+      -->
+    <!--no rotation-->
+    <origin xyz="0.019 0 0.055" rpy="0 0 0"/>
+  </joint>
+
+
+  <!--JETSON NANO BOX-->
+  <link name="jetson">
+    <visual>
+      <geometry>
+        <!--Box of 17cm length, 8cm width, and 6cm height
+          (height is standoff length + wood cutout -->
+        <box size="0.17 0.08 0.06"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+  </link>
+
+  <!--Joint that connects the headbox to the chassis-->
+  <!--fixed because rotation-->
+  <joint name="jetson_joint" type="fixed">
+    <parent link="head"/>
+    <child link="jetson"/>
+    <!--xyz:
+        x = 0cm (no offset between center of both wodden plates)
+        y = 0cm  (no offset in y either)
+        z =  6cm/2 (height/2) + 2.5cm (half of ros controller head box hieght) = 5.5cm = .055m
+      -->
+    <!--No rotation-->
+    <origin xyz="0 0 0.055" rpy="0 0 0"/>
+  </joint>
+
+
+  <!--LIDAR-->
+  <link name="lidar">
+    <visual>
+      <geometry>
+        <!--Box of 7cm length, 9.7cm width, and 5.5cm height
+            (size of lidar) -->
+        <box size="0.097 0.07 0.055"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+
+  <!--Joint that connects the headbox to the chassis-->
+  <!--fixed because rotation-->
+  <joint name="lidar_joint" type="fixed">
+    <parent link="jetson"/>
+    <child link="lidar"/>
+    <!--xyz:
+        x = 2cm (offset between center of jetson nano box and lidar center)
+        y = 0cm  (no offset in y)
+        z = 6cm/2 (height/2) + 2.5cm (half of ros jeston box hieght) = 5.5cm = .055m
+      -->
+    <!--rotation because lidar?-->
+    <origin xyz=".03 0 0.055" rpy="0 0 0"/>
+  </joint>
+
+
+  <!-- Link Gazebo and ROS -->
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/</robotNamespace>
+    </plugin>
+  </gazebo>
+
+
+</robot>
