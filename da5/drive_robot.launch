@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Arguments: arg is just a variable in a xml/launch file that has no specific relation to ROS-->
+  <arg name="model" default="$(find ros_mobile_robot)/urdf/mobile_robot.urdf.xacro"/>
+  <arg name="gui" default="true" />
+  <arg name="rvizconfig" default="$(find ros_mobile_robot)/urdf/urdf.rviz" />
+
+  <!-- Parameter: param in a launch file will load a single parameter to the parameter server -->
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+  <param name="use_gui" value="$(arg gui)"/>
+
+  <!-- rosparam: used to load entire yaml files of parameters to the parameter server -->
+  <rosparam command="load"
+            file="$(find ros_mobile_robot)/config/diffdrive.yaml"
+            ns="robot_diff_drive_controller" />
+
+  <!-- Load Gazebo control parameters -->
+  <rosparam command="load" file="$(find ros_mobile_robot)/config/gazebo_ros_control_params.yaml"/>
+  <!-- Load joint_state_controller config -->
+  <rosparam command="load" file="$(find ros_mobile_robot)/config/joints.yaml" ns="mobile_robot_joint_state_controller"/>
+
+  <!-- Alternative to joint_state_controller is joint_state_publisher -->
+  <!-- https://answers.ros.org/question/303358/what-is-the-difference-between-joint_state_publisher-and-joint_state_controller/ -->
+  <!--<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />-->
+
+  <!-- Load all other required nodes -->
+  <node pkg="robot_state_publisher" name="robot_state_publisher" type="robot_state_publisher" />
+  
+  <!-- Comment/Uncomment to disable/enable rviz -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+  <node name="robot_controller_spawner" pkg="controller_manager" type="spawner" args="mobile_robot_joint_state_controller robot_diff_drive_controller --shutdown-timeout 3"/>
+
+  <!-- Launch an empty world in Gazebo -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="recording" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+  
+  <!-- Push robot_description to factory and spawn robot in Gazebo -->
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
+        args="-z 1.0 -unpause -urdf -model robot -param robot_description" respawn="false" output="screen" />
+
+
+  <!-- joystick node -->
+  <node pkg="joy" type="joy_node" name="joy_node" />
+
+  <!-- joy node -->
+  <node pkg="learning_joy" type="turtle_teleop_joy" name="turtle_teleop_joy_node"/>
+
+
+</launch>
