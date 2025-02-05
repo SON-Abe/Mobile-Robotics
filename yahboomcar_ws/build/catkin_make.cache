@@ -1,0 +1,2 @@
+jetson_camera:jetson_nano_csi_cam_ros:opencv_apps:yahboomcar_bringup:yahboomcar_description:yahboomcar_mediapipe:yahboomcar_msgs:yahboomcar_slam:yahboomcar_visual:yahboomcar_yolov4_tiny
+-DCATKIN_DEVEL_PREFIX=/home/jetson/yahboomcar_ws/devel -DCMAKE_INSTALL_PREFIX=/home/jetson/yahboomcar_ws/install -G Unix Makefiles
